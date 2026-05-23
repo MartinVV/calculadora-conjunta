@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Variables Aleatorias Conjuntas</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .input-grid {
+      border-collapse: collapse;
+      margin-top: 1em;
+    }
+    .input-grid td, .input-grid th {
+      border: 1px solid #ccc;
+      padding: 0.5em;
+      text-align: center;
+    }
+    .input-grid input {
+      width: 4em;
+      text-align: center;
+    }
+    .hidden {
+      display: none;
+    }
+    .resultados {
+      margin-top: 2em;
+      background: #2e2e2e;
+      padding: 1em;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <main class="section">
+    <h2>Calculadora de Distribuciones Conjuntas Discretas</h2>
+
+    <div>
+      <label>Rango de X (separados por coma):</label><br>
+      <input type="text" id="rangoX" placeholder="ej: -1.5, 1, 2.31">
+    </div>
+    <div>
+      <label>Rango de Y (separados por coma):</label><br>
+      <input type="text" id="rangoY" placeholder="ej: -1.5, 1, 2.31">
+    </div>
+    <button onclick="crearTabla()">Crear tabla de probabilidades conjuntas</button>
+
+    <div id="tablaContainer" class="hidden">
+      <h3>Ingresar Probabilidades Conjuntas</h3>
+      <table id="tablaProbabilidades" class="input-grid"></table>
+      <button onclick="calcularResultados()" type="button">Calcular resultados</button>
+    </div>
+
+    <div id="resultados" class="hidden resultados"></div>
+  </main>
+
+  <script>
+    let rx = [], ry = [];
+
+    function crearTabla() {
+      rx = document.getElementById("rangoX").value.split(',').map(Number);
+      ry = document.getElementById("rangoY").value.split(',').map(Number);
+
+      const tabla = document.getElementById("tablaProbabilidades");
+      tabla.innerHTML = '';
+
+      const header = document.createElement("tr");
+      header.innerHTML = '<th>X , Y</th>' + ry.map(y => `<th>${y}</th>`).join('');
+      tabla.appendChild(header);
+
+      for (let i = 0; i < rx.length; i++) {
+        const row = document.createElement("tr");
+        row.innerHTML = `<th>${rx[i]}</th>` + ry.map((_, j) => `<td><input type="number" min="0" max="1" step="any" name="p_${i}_${j}"/></td>`).join('');
+        tabla.appendChild(row);
+      }
+
+      document.getElementById("tablaContainer").classList.remove("hidden");
+    }
+
+    function calcularResultados() {
+      const inputs = document.querySelectorAll("#tablaProbabilidades input");
+      const probas = Array.from(inputs).map(input => parseFloat(input.value) || 0);
+
+      // Validar rango
+      if (!probas.every(p => p >= 0 && p <= 1)) {
+        alert("Todas las probabilidades deben estar entre 0 y 1.");
+        return;
+      }
+
+      const total = probas.reduce((a, b) => a + b, 0);
+      if (Math.abs(total - 1) > 1e-8) {
+        alert("La suma total de las probabilidades debe ser 1. Actualmente es: " + total);
+        return;
+      }
+
+      const filas = rx.length, columnas = ry.length;
+      let p = Array(filas).fill().map(() => Array(columnas).fill(0));
+
+      for (let i = 0; i < filas; i++) {
+        for (let j = 0; j < columnas; j++) {
+          p[i][j] = probas[i * columnas + j];
+        }
+      }
+
+      let px = p.map(row => row.reduce((a,b) => a+b, 0));
+      let py = ry.map((_, j) => p.map(row => row[j]).reduce((a,b) => a+b, 0));
+
+      let ex = rx.reduce((acc, xi, i) => acc + xi * px[i], 0);
+      let ey = ry.reduce((acc, yi, j) => acc + yi * py[j], 0);
+
+      let ex2 = rx.reduce((acc, xi, i) => acc + xi * xi * px[i], 0);
+      let ey2 = ry.reduce((acc, yi, j) => acc + yi * yi * py[j], 0);
+
+      let varx = ex2 - ex * ex;
+      let vary = ey2 - ey * ey;
+
+      let exy = 0;
+      for (let i = 0; i < filas; i++) {
+        for (let j = 0; j < columnas; j++) {
+          exy += rx[i] * ry[j] * p[i][j];
+        }
+      }
+
+      let covar = exy - ex * ey;
+      let corr = covar / (Math.sqrt(varx) * Math.sqrt(vary));
+
+      let prodMarginal = [].concat(...px.map(pxk => py.map(pyk => pxk * pyk)));
+      let indep = probas.every((pij, idx) => Math.abs(pij - prodMarginal[idx]) < 1e-10);
+
+      const res = document.getElementById("resultados");
+      res.innerHTML = `
+        <strong>Distribuciones marginales:</strong><br>
+        p<sub>X</sub> = [${px.map(p => p.toFixed(4)).join(', ')}]<br>
+        p<sub>Y</sub> = [${py.map(p => p.toFixed(4)).join(', ')}]<br><br>
+
+        <strong>Esperanzas:</strong><br>
+        E(X) = ${ex.toFixed(4)}, E(Y) = ${ey.toFixed(4)}<br>
+        Var(X) = ${varx.toFixed(4)}, Var(Y) = ${vary.toFixed(4)}<br><br>
+
+        <strong>Covarianza y correlación:</strong><br>
+        E(XY) = ${exy.toFixed(4)}<br>
+        Cov(X,Y) = ${covar.toFixed(4)}<br>
+        Corr(X,Y) = ${corr.toFixed(4)}<br><br>
+
+        <strong>¿Son independientes?</strong> ${indep ? 'Sí' : 'No'}
+      `;
+
+      res.classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>
