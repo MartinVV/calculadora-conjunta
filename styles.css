@@ -1,0 +1,157 @@
+/* styles.css */
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #1e1e1e;
+  color: #f5f5f5;
+}
+
+header {
+  background: rgba(62, 32, 109, 0.62);  /* violeta con transparencia */
+  padding: 1em 2em;
+  justify-content: space-between;
+  align-items: center;
+
+  /* “glass” moderno (no rompe en navegadores que no lo soportan) */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  font-size: 1.5em;
+  color: #f5f5f5;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 1em;
+}
+
+.nav-links a {
+  color: #ffa500;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.nav-links a:hover {
+  color: #8affb1;
+}
+
+main {
+  max-width: 1000px;
+  margin: 2em auto;
+  padding: 0 1em;
+}
+
+.section {
+  margin-bottom: 3em;
+}
+
+h2 {
+  border-bottom: 2px solid #8affb1;
+  padding-bottom: 0.3em;
+  margin-bottom: 0.5em;
+  color: #ffa500;
+}
+
+h3 {
+  color: #8affb1;
+}
+
+ul li {
+  margin: 0.5em 0;
+}
+
+pre code {
+  background: #333;
+  padding: 0.5em;
+  display: block;
+  white-space: pre-wrap;
+  color: #dcdcdc;
+}
+
+footer {
+  background-color: #111;
+  color: #999;
+  text-align: center;
+  padding: 1em 0;
+  font-size: 0.9em;
+}
+
+a {
+  color: #ffa500;
+}
+
+a:hover {
+  color: #8affb1;
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 1em;
+}
+
+.perfil {
+  display: flex;
+  align-items: center;
+}
+
+button {
+  background-color: #8a2be2; /* violeta oscuro */
+  color: #fff;
+  border: 2px solid #32cd32; /* borde verde lima (#ffa500 si preferís naranja) */
+  padding: 0.6em 1.2em;
+  border-radius: 8px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease, border-color 0.3s ease;
+  margin-top: 1em;
+}
+
+button:hover {
+  background-color: #6b22b8;
+  transform: scale(1.05);
+  border-color: #ffa500; /* cambia a naranja al pasar el mouse */
+}
+
+button:active {
+  background-color: #501a8c;
+  transform: scale(0.97);
+}
+
+/* Fondo animado Random Walk */
+.prob-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 1; /* si querés más tenue: 0.8 o 0.6 */
+}
+
+.prob-bg canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Asegura que el contenido esté arriba del canvas */
+header, main, footer {
+  position: relative;
+  z-index: 1;
+}
