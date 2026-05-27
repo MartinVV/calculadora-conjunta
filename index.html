@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calculadora de Variables Aleatorias Conjuntas</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="../css/styles.css">
   <style>
     .input-grid {
       border-collapse: collapse;
@@ -69,16 +69,39 @@
 
       for (let i = 0; i < rx.length; i++) {
         const row = document.createElement("tr");
-        row.innerHTML = `<th>${rx[i]}</th>` + ry.map((_, j) => `<td><input type="number" min="0" max="1" step="any" name="p_${i}_${j}"/></td>`).join('');
+        row.innerHTML = `<th>${rx[i]}</th>` + ry.map((_, j) => `<td><input type="text" name="p_${i}_${j}" placeholder="0, 1/2, 0.25"/></td>`).join('');
         tabla.appendChild(row);
       }
 
       document.getElementById("tablaContainer").classList.remove("hidden");
     }
 
+function parseNumero(valor) {
+  valor = valor.trim();
+
+  if (valor.includes("/")) {
+    const partes = valor.split("/");
+    if (partes.length !== 2) return NaN;
+
+    const num = Number(partes[0].trim());
+    const den = Number(partes[1].trim());
+
+    if (!Number.isFinite(num) || !Number.isFinite(den) || den === 0) {
+      return NaN;
+    }
+
+    return num / den;
+  }
+
+  return Number(valor);
+}
+
     function calcularResultados() {
       const inputs = document.querySelectorAll("#tablaProbabilidades input");
-      const probas = Array.from(inputs).map(input => parseFloat(input.value) || 0);
+      const probas = Array.from(inputs).map(input => {
+  	const valor = parseNumero(input.value);
+  	return Number.isFinite(valor) ? valor : 0;
+	});
 
       // Validar rango
       if (!probas.every(p => p >= 0 && p <= 1)) {
